@@ -82,7 +82,7 @@ def install_dependencies():
     # Install the version of PyTorch needed
     if gpuchoice == "a":
         run_cmd(
-            "conda install nvidia/label/cuda-12.1.0::cuda-toolkit"
+            "conda install -y -k nvidia/label/cuda-12.1.0::cuda-toolkit"
         )
         run_cmd(
             "conda install -y -k pytorch torchvision torchaudio pytorch-cuda=12.1  ninja git -c pytorch -c nvidia"
