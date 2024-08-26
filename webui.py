@@ -97,6 +97,8 @@ def install_dependencies():
     else:
         print("Invalid choice. Exiting...")
         sys.exit()
+        
+    run_cmd("conda install -y -c pytorch ffmpeg")  # LGPL
 
     repo_dir = os.path.join(script_dir, "DocPOI_repo")
     if not os.path.exists(repo_dir):

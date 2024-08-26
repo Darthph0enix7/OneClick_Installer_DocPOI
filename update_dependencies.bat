@@ -12,6 +12,8 @@ if "%ERRORLEVEL%" == "0" (
 set PATH=%PATH%;%SystemRoot%\system32
 
 @rem config
+set DISTUTILS_USE_SDK=1
+
 set INSTALL_DIR=%cd%\installer_files
 set CONDA_ROOT_PREFIX=%cd%\installer_files\conda
 set INSTALL_ENV_DIR=%cd%\installer_files\env
@@ -25,6 +27,8 @@ set TESSERACT_DOWNLOAD_URL=https://digi.bib.uni-mannheim.de/tesseract/tesseract-
 set OLLAMA_DOWNLOAD_URL=https://ollama.com/download/OllamaSetup.exe
 set POPPLER_DOWNLOAD_URL=https://github.com/oschwartz10612/poppler-windows/releases/download/v24.07.0-0/Release-24.07.0-0.zip
 set conda_exists=F
+set VS_BUILD_TOOLS_URL=https://aka.ms/vs/17/release/vs_BuildTools.exe
+set "MSBUILD_PATH=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin"
 
 @rem figure out whether conda needs to be installed
 call "%CONDA_ROOT_PREFIX%\_conda.exe" --version >nul 2>&1
@@ -99,6 +103,35 @@ if not exist "%POPPLER_PATH%" (
     tar -xf "%INSTALL_DIR%\poppler.zip" -C "%INSTALL_DIR%"
 ) else (
     echo Poppler is already unzipped at %POPPLER_PATH%.
+)
+
+@rem Check if MSBuild exists in the specified path
+if exist "%MSBUILD_PATH%\MSBuild.exe" (
+    echo MSBuild found in the specified path.
+) else (
+    echo MSBuild not found in the specified path, checking Visual Studio installation...
+
+    @rem Check for Visual Studio Build Tools installation using vswhere
+    vswhere -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 >nul 2>&1
+
+    if "%ERRORLEVEL%" NEQ "0" (
+        echo Visual Studio c++ Build Tools not found. Downloading and installing...
+
+        curl -L -o "%INSTALL_DIR%\vs_buildtools.exe" %VS_BUILD_TOOLS_URL% || (
+            echo.
+            echo Visual Studio Build Tools failed to download.
+            goto end
+        )
+
+        echo Installing Visual Studio Build Tools silently. This process may take a while.
+        "%INSTALL_DIR%\vs_buildtools.exe" --quiet --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools --add Microsoft.VisualStudio.Workload.WebBuildTools --add Microsoft.VisualStudio.Workload.NetCoreBuildTools --add Microsoft.VisualStudio.Component.Windows10SDK.18362 --add Microsoft.Net.Component.4.7.TargetingPack --includeRecommended --wait || (
+            echo.
+            echo Visual Studio Build Tools installation failed.
+            goto end
+        )
+    ) else (
+        echo Visual Studio c++ Build Tools are already installed.
+    )
 )
 
 @rem Check for and install Docker if not installed
