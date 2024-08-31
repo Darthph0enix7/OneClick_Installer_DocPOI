@@ -121,7 +121,8 @@ def install_dependencies():
         run_cmd(f"git clone https://huggingface.co/coqui/XTTS-v2 {tts_repo_dir}")
     else:
         print("XTTS-v2 repository already exists.")
-
+        
+    update_dependencies()
 
 def setup_elasticsearch():
     # Use environment variable to construct the Docker Desktop path

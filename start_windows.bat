@@ -154,9 +154,6 @@ call python webui.py --setup-elasticsearch
 call python webui.py --run-ollama
 
 @rem run the Python script
-call python webui.py --update
-
-@rem run the Python script
 call python webui.py %*
 
 echo.
